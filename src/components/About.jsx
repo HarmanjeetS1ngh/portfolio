@@ -308,7 +308,7 @@ function Intro() {
   return (
     <motion.div {...useReveal(0.12)} className="flex flex-col gap-10 pt-8 md:col-span-4 md:pt-[18px] md:pl-6">
       <div data-cursor="text" className="relative px-3 py-2.5">
-        <p className="m-0 max-w-[26em] font-display text-[clamp(18px,1.9vw,22px)] leading-[1.25] font-normal tracking-[-0.02em] text-ink-0">
+        <p className="m-0 w-full text-pretty font-display text-[clamp(18px,1.9vw,22px)] leading-[1.25] font-normal tracking-[-0.02em] text-ink-0">
           {i < 0 ? about.bio : (
             <>
               {about.bio.slice(0, i)}
