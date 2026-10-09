@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harmanjeet Singh | Product Designer</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#fffefc" />
+    <meta name="description" content="Harmanjeet Singh is a Product Designer making interfaces feel less like work and more like instinct. Portfolio, case studies and lab." />
+    <link rel="preload" as="font" type="font/ttf" href="/fonts/Groovy_Texbox_Demo.ttf" crossorigin />
+    <link rel="preload" as="image" href="/stamp/stamp-final.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Google Fonts load without blocking first paint (display=swap swaps them in when ready) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <!-- Opening a case study directly (or refreshing it): start fetching its hero images now,
+         instead of waiting for the JS chunk + CSS to discover them. -->
+    <script>
+      (function () {
+        var m = {
+          '#/work/epic-gains': ['/work/epic-gains/hero-banner.webp', '/work/epic-gains/hero-element.webp'],
+          '#/work/crunchyroll': ['/work/crunchyroll/hero-banner.webp', '/work/crunchyroll/hero-element.webp'],
+          '#/work/securelancer': ['/work/securelancer/hero_image.webp']
+        };
+        var list = m[location.hash.replace(/\/$/, '')];
+        if (!list) return;
+        list.forEach(function (u) {
+          var l = document.createElement('link');
+          l.rel = 'preload'; l.as = 'image'; l.href = u; l.fetchPriority = 'high';
+          document.head.appendChild(l);
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+# Harmanjeet Singh
+
+> Portfolio of Harmanjeet Singh, a Product Designer making interfaces feel less like work and more like instinct.
+
+## Case studies
+
+- [Crunchyroll redesign](https://portfolio-enhanced.harman150304.workers.dev/#/work/crunchyroll): UX case study
+- [TheSecureLancer](https://portfolio-enhanced.harman150304.workers.dev/#/work/securelancer): Client website design and development
+- [Epic Gains](https://portfolio-enhanced.harman150304.workers.dev/#/work/epic-gains): Fitness app redesign
+
+## Other
+
+- [Lab](https://portfolio-enhanced.harman150304.workers.dev/#/lab): Experiments and photography

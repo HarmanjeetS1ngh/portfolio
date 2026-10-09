@@ -1,0 +1,620 @@
+@import "tailwindcss";
+
+/*
+  Full colour palette, fonts and custom-cursor behaviour carried over from the
+  Crunchyroll case study (same token names and values).
+*/
+@font-face {
+  font-family: "GroovyTextBox";
+  src: url("/fonts/Groovy_Texbox_Demo.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  /* background colours (from the case study's :root tokens) */
+  --color-main: #fffefc;
+  --color-surface-1: #f5f8fb;
+  --color-surface-2: #f6f9fc;
+  --color-placeholder: #edf1f5;
+
+  /* text / UI neutrals needed to read on those backgrounds */
+  --color-ink-0: #09090b;
+  --color-ink: #18181b;
+  --color-ink-2: #52525b;
+  --color-ink-3: rgba(15, 28, 46, 0.32);
+  --color-line: #cdd5e0;
+  --color-line-soft: rgba(15, 28, 46, 0.14);
+  --color-surface-3: #f7f9fc;
+
+  /* brand blues */
+  --color-accent: #0080ff;
+  --color-accent-dark: #0055b3;
+  --color-accent-soft: rgba(0, 128, 255, 0.08);
+  --color-tools-blue: #00a3ff;
+  --color-good: #0e7a5f;
+  --color-good-bg: #eaf7f2;
+  --color-bad: #b3402c;
+  --color-bad-bg: #fbefec;
+
+  /* mint tint (case study hero banner) */
+  --color-mint-2: #defffb;
+
+  /* fonts (from the case study) */
+  --font-display: "Gabarito", sans-serif;
+  --font-body: "Hanken Grotesk", sans-serif;
+  --font-groovy: "GroovyTextBox", "Gabarito", sans-serif;
+  --font-mono-ui: "Space Mono", monospace;
+}
+
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    overflow-x: clip;
+    overflow-y: scroll; /* always reserve scrollbar space so the fixed dock does not shift between pages */
+  }
+
+  /* Custom cursor: hide the native cursor once the JS cursor is live
+     (fine-pointer devices only — CustomCursor.jsx skips itself on touch). */
+  html.custom-cursor-active,
+  html.custom-cursor-active * {
+    cursor: none !important;
+  }
+
+  body {
+    background-color: #fffefc;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    margin: 0;
+  }
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+}
+
+/* Flat page background: #fffefc. */
+.hero-wash {
+  background: #fffefc;
+}
+
+/* Hero: faint dot grid behind the name */
+.hero-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(15, 28, 46, 0.14) 1px, transparent 1.4px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 20%, transparent 75%);
+}
+
+/* Header wordmark: 1px stroke, centred on the glyph outline (half inside, half outside) */
+.wordmark-stroke {
+  -webkit-text-stroke: 1px var(--color-ink-0);
+  paint-order: stroke fill;
+}
+
+/* Hometown clock: LED dots. Off = dim grey, on = white; on hover the lit ones sweep to blue.
+   (per-dot transition-delay is set inline so the sweep runs left to right) */
+.led-dot {
+  fill: #1f1f23;
+  transition: fill 0.3s cubic-bezier(0.44, 0, 0.56, 1);
+}
+.led-dot[data-on="true"] {
+  fill: #ffffff;
+}
+.led-clock[data-hover="true"] .led-dot[data-on="true"] {
+  fill: #2b9bff;
+}
+/* seconds readout: hidden until the panel is hovered/focused */
+.led-dot[data-group="sec"] {
+  opacity: 0;
+  transition:
+    fill 0.3s cubic-bezier(0.44, 0, 0.56, 1),
+    opacity 0.3s cubic-bezier(0.44, 0, 0.56, 1);
+}
+.led-clock[data-hover="true"] .led-dot[data-group="sec"] {
+  opacity: 1;
+}
+/* the colon blinks once a second */
+.led-colon {
+  animation: led-blink 1s steps(1, end) infinite;
+}
+@keyframes led-blink {
+  50% {
+    opacity: 0.18;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .led-colon {
+    animation: none;
+  }
+}
+
+/* Selected work grid: 6 cols, 20px gap */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(50px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.work-card--full {
+  grid-column: span 6;
+}
+.work-card--wide {
+  grid-column: span 4;
+}
+.work-card--tall {
+  grid-column: span 2;
+}
+.work-media {
+  aspect-ratio: var(--work-ratio);
+}
+.work-img {
+  transition:
+    transform 0.3s cubic-bezier(0.44, 0, 0.56, 1),
+    filter 0.3s cubic-bezier(0.44, 0, 0.56, 1);
+}
+.work-media:hover .work-img,
+.work-card:focus-visible .work-img {
+  transform: scale(1.02);
+  filter: brightness(1.05);
+}
+.work-mockup {
+  filter: drop-shadow(0 40px 50px rgba(0, 0, 0, 0.15))
+    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.15));
+  transition:
+    transform 0.3s cubic-bezier(0.44, 0, 0.56, 1);
+}
+.work-media:hover .work-mockup,
+.work-card:focus-visible .work-mockup {
+  transform: translateY(-6px) scale(1.015);
+}
+.work-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 20px;
+}
+@media (max-width: 810px) {
+  .work-grid {
+    grid-template-columns: repeat(2, minmax(50px, 1fr));
+    max-width: 640px;
+    margin-inline: auto;
+  }
+  .work-card--full,
+  .work-card--wide {
+    grid-column: span 2;
+  }
+  /* Tall card becomes full width with the same ratio as the wide card above it */
+  .work-card--tall {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .work-card--tall .work-media {
+    aspect-ratio: 1.27 / 1;
+  }
+}
+@media (max-width: 520px) {
+  .work-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  .work-card--full,
+  .work-card--wide,
+  .work-card--tall {
+    grid-column: span 1;
+    width: 100%;
+  }
+}
+
+/* Custom cursor visuals (same as the case study) */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: opacity 0.25s ease;
+}
+.custom-cursor img {
+  display: block;
+  transition: transform 0.1s ease;
+}
+.custom-cursor.is-pressed img {
+  transform: scale(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor,
+  .custom-cursor img {
+    transition: none;
+  }
+}
+
+/* About: canvas dot grid + "text selected" highlight */
+.about-canvas {
+  background-color: #fffefc;
+  background-image: radial-gradient(circle at 1px 1px, rgba(15, 28, 46, 0.16) 1px, transparent 1.4px);
+  background-size: 24px 24px;
+}
+.sel-hl {
+  background-image: linear-gradient(rgba(0, 128, 255, 0.2), rgba(0, 128, 255, 0.2));
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.2em;
+  margin: 0 -0.2em;
+  border-radius: 3px;
+  transition: background-size 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sel-hl {
+    transition: none;
+  }
+}
+
+
+/* About bento: tools marquee (two rows, opposite directions, pauses on hover) */
+.tools-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+.tools-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: tools-scroll 26s linear infinite;
+}
+.tools-track[data-dir="reverse"] {
+  animation-direction: reverse;
+}
+@keyframes tools-scroll {
+  to {
+    transform: translateX(calc(-50% - var(--tools-gap, 8px) / 2));
+  }
+}
+.caret {
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
+  .tools-track {
+    animation: none;
+  }
+}
+/* Lenis smooth scroll (required rules) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* Footer curtain reveal, driven by the browser's scroll timeline (compositor-synced, zero JS lag).
+   Range = footer's top meets the viewport bottom (0%) -> footer's bottom meets it (100%), same as the reference. */
+@keyframes footer-rise {
+  from { transform: translate3d(0, calc(var(--footer-rise, 200px) * -1), 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+#footer.footer-rise { --footer-rise: 200px; }
+@media (max-width: 809.98px) {
+  #footer.footer-rise { --footer-rise: 100px; }
+}
+@supports (animation-timeline: view()) {
+  #footer.footer-rise {
+    animation: footer-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #footer.footer-rise { animation: none; }
+  }
+}
+/* ───────── hobbies reveal: compositor-driven (transform + opacity only) ─────────
+   Same choreography as the old framer springs (stack rotated -40deg below -> rises -> cards peel
+   into their slots, middle card first), but it runs on the GPU compositor, so main-thread work
+   (scroll, video/image loading, React) can no longer make it stutter. The spring curves are
+   sampled into linear() easings. */
+.hobby-stage, .hobby-card { will-change: transform; }
+[data-done] .hobby-stage, [data-done] .hobby-card { will-change: auto; }
+.hobby-stage { opacity: 0; }
+.hobby-card { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+.hobby-stage[data-in] {
+  opacity: 1;
+  animation: hobby-stage-in 1.1s var(--hobby-ease-stage) backwards, hobby-fade 0.25s linear backwards;
+}
+.hobby-stage[data-in] .hobby-card {
+  animation: hobby-card-in 0.82s var(--hobby-ease-card) backwards;
+  animation-delay: calc(0.35s + var(--k, 0) * 0.08s);
+}
+@keyframes hobby-stage-in {
+  from { transform: translate3d(0, 420px, 0) scale(1.2) rotate(-40deg); }
+  to { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+}
+@keyframes hobby-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hobby-card-in {
+  from { transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0) rotate(0deg); }
+  to { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+}
+:root {
+  --hobby-ease-card: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --hobby-ease-stage: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    --hobby-ease-card: linear(0, 0.0176, 0.0631, 0.1281, 0.2054, 0.2895, 0.3738, 0.4592, 0.541, 0.6174, 0.6872, 0.7485, 0.8039, 0.8518, 0.8927, 0.9268, 0.9542, 0.9768, 0.9945, 1.008, 1.0178, 1.0245, 1.0288, 1.0311, 1.0318, 1.0313, 1.0299, 1.0279, 1.0254, 1.0228, 1.02, 1.0174, 1.0148, 1.0123, 1.0101, 1.0081, 1.0063, 1.0048, 1.0035, 1.0024, 1);
+    --hobby-ease-stage: linear(0, 0.0239, 0.0801, 0.1541, 0.2361, 0.3196, 0.4006, 0.4766, 0.5462, 0.6089, 0.6646, 0.7136, 0.7564, 0.7934, 0.8253, 0.8526, 0.8759, 0.8957, 0.9125, 0.9267, 0.9387, 0.9488, 0.9572, 0.9643, 0.9703, 0.9752, 0.9794, 0.9829, 0.9858, 0.9882, 0.9902, 0.9919, 0.9932, 0.9944, 0.9954, 0.9961, 0.9968, 0.9974, 0.9978, 0.9982, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hobby-stage { opacity: 1; }
+  .hobby-stage[data-in], .hobby-stage[data-in] .hobby-card { animation: none; }
+}
+
+/* ───────── hobbies hover: GPU transitions (transform + opacity only, no per-frame paint) ───────── */
+.hobby-lift {
+  transform: translate3d(var(--sx, 0px), var(--ly, 0px), 0) scale(var(--ls, 1)) rotate(var(--lr, 0deg));
+  transition: transform 0.54s var(--hobby-ease-lift);
+  will-change: transform;
+}
+.hobby-shadow { transition: opacity 0.35s ease; will-change: opacity; }
+.hobby-pill { transition: transform 0.45s var(--hobby-ease-pill), opacity 0.18s linear; }
+:root {
+  --hobby-ease-lift: cubic-bezier(0.22, 1.1, 0.36, 1);
+  --hobby-ease-pill: cubic-bezier(0.34, 1.5, 0.64, 1);
+}
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    --hobby-ease-lift: linear(0, 0.0196, 0.0684, 0.1356, 0.2134, 0.2956, 0.3751, 0.4549, 0.5299, 0.5989, 0.6614, 0.715, 0.764, 0.8066, 0.8431, 0.8742, 0.8994, 0.9213, 0.9394, 0.9541, 0.966, 0.9752, 0.9827, 0.9886, 0.9931, 0.9965, 0.9989, 1.0007, 1.0019, 1.0027, 1.0031, 1.0033, 1.0033, 1.0032, 1.003, 1.0028, 1.0026, 1.0023, 1.002, 1.0017, 1);
+    --hobby-ease-pill: linear(0, 0.031, 0.1042, 0.2095, 0.325, 0.4503, 0.5668, 0.6748, 0.7751, 0.8569, 0.9271, 0.9799, 1.0196, 1.0488, 1.0665, 1.0763, 1.0791, 1.077, 1.0711, 1.0633, 1.0538, 1.0443, 1.035, 1.0261, 1.0184, 1.0116, 1.0062, 1.0019, 0.9986, 0.9963, 0.9948, 0.994, 0.9937, 0.9939, 0.9943, 0.995, 0.9957, 0.9964, 0.9972, 0.9979, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hobby-lift, .hobby-shadow, .hobby-pill { transition: none; }
+}
+
+/* ───────── scroll-time hygiene for the hobbies strip ─────────
+   Lenis scrolls from JS, so a resting cursor "enters/leaves" cards as they slide underneath it; every one of
+   those would re-render React, start a lift transition and kick a video. Ignore the pointer while the page
+   is scrolling (hover resumes the moment it stops). Also keep the permanent GPU layers to one per card. */
+.hobby-lift .hobby-lift, .hobby-shadow { will-change: auto; }
+/* Perf: during FAST scrolling cards sliding under a resting cursor must not start hover work. The class is set by
+   useSmoothScroll only above a speed threshold, so as the scroll decelerates the lock lifts while the page is
+   still moving and the browser re-evaluates hover on its own (no stuck hover after the scroll stops). */
+html.fast-scroll .work-card, html.fast-scroll .hobby-stage { pointer-events: none; }
+.custom-cursor { contain: layout style; }
+
+/* Footer heading: soft white bloom + a static, barely-there red/blue split (no animation). */
+.footer-glitch {
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.1),
+    0 0 32px rgba(255, 255, 255, 0.05)
+}
+
+/* Footer is dark: the global 8% blue selection is invisible there, so use silver with the site's black text. */
+#footer ::selection,
+#footer::selection {
+  background-color: #c9ced6;
+  color: var(--color-ink-0);
+  text-shadow: none;
+}
+
+/* ---- case-study pages (Crunchyroll first; shared by the others) ---- */
+.case-study { overflow-x: clip; } /* the full-bleed hero (100vw) must never cause sideways scroll */
+.case-study strong, .case-study b { font-weight: 700; }
+
+
+/*
+  Design tokens carried over 1:1 from the original HTML :root block.
+  Tailwind v4 turns each --color-* / --font-* into utilities automatically:
+    --color-good      -> bg-good, text-good, border-good
+    --color-main      -> text-main, bg-main
+    --font-mono-ui    -> font-mono-ui
+*/
+
+
+
+
+/* Hero banner gradient bleeds up behind the nav and spans the full viewport width,
+   independently of the (narrower, centered) hero image sitting inside it. */
+.hero-bleed::before {
+  content: '';
+  position: absolute;
+  top: -260px;
+  left: 50%;
+  right: 50%;
+  bottom: 0;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background: linear-gradient(to bottom, #bdfff7 0%, #defffb 68%, #ffffff 100%);
+  z-index: -1;
+}
+
+/* Mobile only (< md): shorter gradient. --hero-grad-top is how far the gradient
+   reaches ABOVE the hero image (behind the back button); --hero-grad-bottom is
+   how far it stops short of the image's bottom edge, as a % of the image height
+   so it scales on every phone width (0% = ends with the image).
+   Tweak these two numbers to taste. Desktop (768px+) is untouched. */
+@media (max-width: 767px) {
+  .hero-bleed {
+    --hero-grad-top: 120px;
+    --hero-grad-bottom: 10%;
+  }
+  .hero-bleed::before {
+    top: calc(var(--hero-grad-top) * -1);
+    bottom: var(--hero-grad-bottom);
+  }
+}
+
+/* Crunchyroll hero: the real flattened banner (manga collage + orange-to-white
+   fade, baked together as one image in Figma) instead of trying to recreate
+   that look with a live gradient + multiply-blended line-art layer — the
+   live version never matched the source closely enough.
+
+   Because it's one raster now, background-size: cover (not the old
+   width-locked 100% auto) is what makes it work at every viewport: cover
+   always fills the box's full height first, so the fade painted into the
+   image finishes at the bottom edge no matter how tall the box gets — it's
+   the width that gets cropped instead, center-cropped so the fade and the
+   top of the artwork stay framed the same way on any screen.
+
+   Bleeds to the full viewport width the same way .hero-bleed does, and
+   shares the same negative top inset that pulls it up past this element's
+   own top edge to reach the very top of the page. That top edge sits at a
+   different distance from the page top on mobile vs. desktop (the sticky
+   nav's height plus the hero's own margin-top, which flips from negative to
+   positive at the md breakpoint — see the .crunchy-hero-bleed div), so the
+   offset is tuned per breakpoint rather than a single value that only works
+   on one. */
+.crunchy-hero-bleed::before {
+  content: '';
+  position: absolute;
+  inset: -120px 50% 0 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  z-index: -1;
+  background-image: url('/work/crunchyroll/hero-banner.webp');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) {
+  .crunchy-hero-bleed::before {
+    top: -170px;
+  }
+}
+
+
+/* Epic Gains hero banner: same full-bleed technique as .crunchy-hero-bleed. */
+.epic-hero-bleed::before {
+  content: '';
+  position: absolute;
+  inset: -120px 50% 0 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  z-index: -1;
+  background-image: url('/work/epic-gains/hero-banner.webp');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) {
+  .epic-hero-bleed::before {
+    top: -170px;
+  }
+}
+
+/* Hide the scrollbar on the horizontally-scrolling process chain */
+.chain-scroll::-webkit-scrollbar { height: 6px; }
+.chain-scroll::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 999px; }
+
+/*
+  Shared text column: every piece of running text (headings, paragraphs,
+  quotes, callouts, captions) uses this so the whole page reads as one
+  consistent, centered column. Cards, grids and images intentionally do
+  NOT use this — they're allowed to use the full content width.
+
+  Fixed px (not `ch`) on purpose: `ch` is relative to each element's own
+  font-size, so a heading (bigger font) and a paragraph (smaller font)
+  would resolve to two different pixel widths for the same "88ch" and
+  their left edges would drift apart when centered. A fixed width keeps
+  every element's left/right edge identical. 780px is ~88 characters at
+  the body copy's own font size, so paragraphs still cap out around that
+  line length; headings simply wrap sooner, which is expected.
+*/
+@layer utilities {
+  .content-col {
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  /*
+    Lets a dense figure (small multi-cell text, e.g. the journey map) grow
+    past the page's 1000px column on roomy screens, so its cell text stays
+    legible instead of shrinking with everything else. Centered the same
+    way as the rest of the page — just occasionally wider than it.
+    Below 1000px it's identical to a plain full-width figure (no breakout).
+
+    The growth from 960px -> 1200px is a continuous function of the viewport
+    (via --bo below), not a breakpoint snap. It used to jump straight to
+    1200px the instant the viewport crossed 1200px, which read as a visible
+    "pop" in the figure's size while resizing/rotating instead of a smooth
+    grow. Now it eases in from 0 starting at viewport 1000px and reaches the
+    same 1200px cap at viewport 1240px, so every figure using this class
+    (Fig 1, 2, 4) scales continuously instead of snapping.
+  */
+  .breakout-lg {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /*
+    --bo is the per-side overhang past the 960px parent, in px. It's 0 at
+    viewport 1000px (where the parent itself stops growing) and eases up to
+    120px by viewport 1240px, then holds — that 120px-per-side cap is what
+    yields the same 960 + 2*120 = 1200px final width as before. Deriving
+    width/margins from the *same* --bo keeps them in lockstep, so the
+    overhang can never exceed the space the (viewport - 1000)/2 math proves
+    is safely clear of the html's overflow-x:clip edge (see the old note
+    this replaces): at every viewport the overhang is exactly
+    min((viewport-1000)/2, 120px), the same bound that previously only got
+    enforced at the single 1200px checkpoint.
+  */
+  @media (min-width: 1000px) {
+    .breakout-lg {
+      --bo: clamp(0px, (100vw - 1000px) / 2, 120px);
+      width: calc(960px + 2 * var(--bo));
+      margin-left: calc(-1 * var(--bo));
+      margin-right: calc(-1 * var(--bo));
+    }
+  }
+}
+/* Custom cursor visuals + viewport fade (see CustomCursor.jsx) */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: opacity 0.25s ease;
+}
+
+.custom-cursor img {
+  display: block;
+  transition: transform 0.1s ease;
+}
+
+.custom-cursor.is-pressed img {
+  transform: scale(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .custom-cursor,
+  .custom-cursor img {
+    transition: none;
+  }
+}

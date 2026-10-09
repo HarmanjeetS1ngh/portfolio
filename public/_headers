@@ -1,0 +1,24 @@
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/hobbies/*
+  Cache-Control: public, max-age=31536000
+/lab/*
+  Cache-Control: public, max-age=31536000
+/about/*
+  Cache-Control: public, max-age=31536000
+/cards/*
+  Cache-Control: public, max-age=31536000
+/dock/*
+  Cache-Control: public, max-age=31536000
+/tools/*
+  Cache-Control: public, max-age=31536000
+/cat/*
+  Cache-Control: public, max-age=31536000
+/stamp/*
+  Cache-Control: public, max-age=31536000
+/footer/*
+  Cache-Control: public, max-age=31536000
+/work/*
+  Cache-Control: public, max-age=31536000
